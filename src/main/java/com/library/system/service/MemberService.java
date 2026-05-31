@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import com.library.system.exception.ResourceNotFoundException;
 
 @Service
 public class MemberService {
@@ -26,7 +27,7 @@ public class MemberService {
 
     public Member findById(Long id) {
         return memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Üye bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Üye bulunamadı! ID: " + id));
     }
 
     public List<Member> findAll() {

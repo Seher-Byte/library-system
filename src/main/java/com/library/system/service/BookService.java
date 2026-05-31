@@ -1,4 +1,5 @@
 package com.library.system.service;
+import com.library.system.exception.ResourceNotFoundException;
 
 import com.library.system.entity.Book;
 import com.library.system.repository.BookRepository;
@@ -27,7 +28,7 @@ public class BookService {
 
     public Book findById(Long id) {
         return bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Kitap bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Kitap bulunamadı! ID: " + id));
     }
 
     public List<Book> findAll() {

@@ -1,4 +1,5 @@
 package com.library.system.service;
+import com.library.system.exception.ResourceNotFoundException;
 
 import com.library.system.entity.Book;
 import com.library.system.entity.Loan;
@@ -53,7 +54,7 @@ public class LoanService {
     @Transactional
     public Loan returnBook(Long loanId) {
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new RuntimeException("Ödünç kaydı bulunamadı! ID: " + loanId));
+                .orElseThrow(() -> new ResourceNotFoundException("Ödünç kaydı bulunamadı! ID: " + loanId));
 
         if (loan.getReturnDate() != null) {
             throw new RuntimeException("Bu kitap zaten iade edilmiş!");
