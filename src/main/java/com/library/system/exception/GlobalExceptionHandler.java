@@ -14,12 +14,12 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. @Valid anotasyonuna takılan validation (doğrulama) hatalarını yakalar
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
-        // DTO'ların içine yazdığımız özel mesajları tek tek ayıklıyoruz
+
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // 2. Aradığımız veri bulunamadığında (Kendi yazdığımız hata) çalışan kısım
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    // 3. Stok yetersizliği veya e-posta çakışması gibi iş kuralları hatalarını yakalar
+
     @ExceptionHandler({RuntimeException.class, IllegalArgumentException.class})
     public ResponseEntity<Map<String, Object>> handleRuntimeExceptions(RuntimeException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // 4. Öngörülemeyen diğer tüm sistemsel hataları yakalar (Genel Güvenlik Duvarı)
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralExceptions(Exception ex) {
         Map<String, Object> response = new HashMap<>();
