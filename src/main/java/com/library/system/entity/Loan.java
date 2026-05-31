@@ -20,7 +20,6 @@ public class Loan extends BaseEntity {
 
     private LocalDate returnDate;
 
-    // Hibernate için boş kurucu metot
     public Loan() {}
 
     public Loan(Book book, Member member, LocalDate loanDate) {
