@@ -54,9 +54,19 @@ public class SecurityConfig {
                         // Hazırladığımız ön yüzün tarayıcıda engelsiz açılması için en üste ekledik
                         .requestMatchers("/", "/index.html").permitAll()
 
-                        // Kitap işlemleri yetkilendirmeleri
+                        // =========================================================================
+                        // 🤖 YAPAY ZEKA DESTEKLİ AKILLI ARAMA (İSTİSNA / ÖZEL KURAL)
+                        // =========================================================================
+                        // Bu kuralın alttaki genel POST kuralından ÜSTTE olması hayati önem taşır.
+                        // Böylece hem ADMIN hem MEMBER bu endpoint'i Postman ve UI üzerinden tetikleyebilir.
+                        .requestMatchers("/api/books/ai-search").hasAnyRole("ADMIN", "MEMBER")
+
+                        // =========================================================================
+                        // 📖 KİTAP İŞLEMLERİ YETKİLENDİRMELERİ (GENEL KURALLAR)
+                        // =========================================================================
                         .requestMatchers(HttpMethod.GET, "/api/books/**").hasAnyRole("ADMIN", "MEMBER")
                         .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/books/**").hasRole("ADMIN") // Eksik olan PUT (Güncelleme) yetkisi ADMIN'e kilitlendi!
                         .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasRole("ADMIN")
 
                         // Üye işlemleri yetkilendirmeleri

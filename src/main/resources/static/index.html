@@ -103,6 +103,16 @@
 
     <div id="memberView" class="row d-none">
         <div class="col-12">
+
+            <div class="card p-4 mb-4 shadow-sm border-0" style="background-color: #ebf3fe; border-left: 5px solid #0d6efd !important;">
+                <h5 class="fw-bold text-primary">🎯 Yapay Zeka ile Akıllı Kitap Arama</h5>
+                <p class="text-muted small">Nasıl bir kitap okumak istediğinizi kendi cümlelerinizle tarif edin, AI sizin için veritabanını tarasın.</p>
+                <div class="input-group">
+                    <input type="text" id="aiSearchInput" class="form-control" placeholder="Örn: Sürükleyici, içinde psikolojik tahliller barındıran Türk edebiyatı klasiği...">
+                    <button onclick="executeAiSearch()" class="btn btn-primary fw-bold">Veritabanında Ara</button>
+                    <button onclick="clearAiSearch()" class="btn btn-secondary">Temizle / Hepsini Gör</button>
+                </div>
+            </div>
             <div class="card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -282,11 +292,76 @@
         document.getElementById("loginForm").reset();
         document.getElementById("logPanel").classList.add("d-none");
 
+        // 🤖 AI ENTEGRASYONU: Çıkış yapıldığında arama kutusunu da temizliyoruz
+        if(document.getElementById("aiSearchInput")) {
+            document.getElementById("aiSearchInput").value = "";
+        }
+
         document.getElementById("adminView").classList.add("d-none");
         document.getElementById("memberView").classList.add("d-none");
         document.getElementById("mainNavbar").classList.add("d-none");
         document.getElementById("loginView").classList.remove("d-none");
     }
+
+    // =========================================================================
+    // 🤖 AI ENTEGRASYONU: JAVASCRIPT FONKSİYONLARI BAŞLANGICI
+    // =========================================================================
+
+    // Yapay zeka ile akıllı arama işlemini başlatan ana fonksiyon
+    function executeAiSearch() {
+        const queryText = document.getElementById("aiSearchInput").value.trim();
+        const tableBody = document.getElementById("memberTableBody");
+
+        // Girdi boşsa kullanıcıyı uyar ve işlemi durdur
+        if (!queryText) {
+            alert("Lütfen aramak istediğiniz kitap tarzını tarif edin!");
+            return;
+        }
+
+        // Yapay zeka taraması sürerken tabloya yükleniyor animasyon metni basıyoruz
+        tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">⏳ <strong>Yapay zeka veritabanını tarıyor, lütfen bekleyin...</strong></td></tr>`;
+
+        // Backend'deki yeni oluşturduğumuz /ai-search endpoint'ine POST isteği atıyoruz
+        fetch(`${API_URL}/ai-search`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ query: queryText })
+        })
+        .then(res => res.json())
+        .then(books => {
+            tableBody.innerHTML = "";
+
+            // Backend'den boş liste ([]) geldiyse (yani AI eşleşen kitap 'YOK' dediyse)
+            if (!books || books.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger fw-bold py-4">❌ Aradığınız tarzda bir kitap veritabanımızda bulunmamaktadır.</td></tr>`;
+                return;
+            }
+
+            // AI tarafından seçilen ve veritabanında doğrulanıp gelen kitapları listeliyoruz
+            books.forEach(book => {
+                tableBody.innerHTML += `<tr>
+                    <td>${book.id}</td>
+                    <td><strong>${book.title}</strong></td>
+                    <td>${book.author}</td>
+                    <td><code>${book.isbn}</code></td>
+                    <td>${book.stockQuantity > 0 ? '<span class="text-success fw-bold">✓ Rafta Mevcut</span>' : '<span class="text-danger fw-bold">✕ Tükendi</span>'}</td>
+                </tr>`;
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">❌ Arama sırasında teknik bir hata oluştu.</td></tr>`;
+        });
+    }
+
+    // Temizle butonuna basıldığında arama girdisini sıfırlayıp tüm kataloğu yeniden çeken yardımcı fonksiyon
+    function clearAiSearch() {
+        document.getElementById("aiSearchInput").value = "";
+        loadBooks('member');
+    }
+    // =========================================================================
+    // 🤖 AI ENTEGRASYONU: JAVASCRIPT FONKSİYONLARI BİTİŞİ
+    // =========================================================================
 </script>
 </body>
 </html>
