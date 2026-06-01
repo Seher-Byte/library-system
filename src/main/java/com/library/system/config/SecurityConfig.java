@@ -1,5 +1,6 @@
 package com.library.system.config;
 
+import org.springframework.security.config.http.SessionCreationPolicy; //opgx
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -44,24 +45,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-
                 .csrf(csrf -> csrf.disable())
 
-                .authorizeHttpRequests(auth -> auth
+                // Tarayıcı çerez çakışmalarını ve tekrar şifre isteme kutusunu engellemek için ekledik
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+                .authorizeHttpRequests(auth -> auth
+                        // Hazırladığımız ön yüzün tarayıcıda engelsiz açılması için en üste ekledik
+                        .requestMatchers("/", "/index.html").permitAll()
+
+                        // Kitap işlemleri yetkilendirmeleri
                         .requestMatchers(HttpMethod.GET, "/api/books/**").hasAnyRole("ADMIN", "MEMBER")
                         .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasRole("ADMIN")
 
-
+                        // Üye işlemleri yetkilendirmeleri
                         .requestMatchers("/api/members/**").hasRole("ADMIN")
 
-
+                        // Ödünç alma (Loan) işlemleri yetkilendirmeleri
                         .requestMatchers("/api/loans/borrow").hasAnyRole("ADMIN", "MEMBER")
                         .requestMatchers("/api/loans/return/**").hasAnyRole("ADMIN", "MEMBER")
                         .requestMatchers("/api/loans/active").hasRole("ADMIN")
                         .requestMatchers("/api/loans/member/**").hasRole("ADMIN")
-
 
                         .anyRequest().authenticated()
                 )

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kütüphane Yönetim Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .login-container { max-width: 450px; margin-top: 10%; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
+        .nav-custom { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    </style>
+</head>
+<body>
+
+<div id="loginView" class="container login-container">
+    <div class="card p-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">📚 Kütüphane Otomasyonu</h2>
+            <p class="text-muted">Lütfen hesabınızla giriş yapın</p>
+        </div>
+
+        <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Kullanıcı Adı</label>
+                <input type="text" id="username" class="form-control form-control-lg" placeholder="admin veya member" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Şifre</label>
+                <input type="password" id="password" class="form-control form-control-lg" placeholder="••••••••" required>
+            </div>
+            <button type="button" onclick="handleLogin()" class="btn btn-primary btn-lg w-100 fw-bold">Giriş Yap</button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <small class="text-muted">Test Bilgileri:<br><b>admin / admin123</b> veya <b>member / member123</b></small>
+        </div>
+    </div>
+</div>
+
+<nav id="mainNavbar" class="navbar nav-custom px-4 mb-4 d-none">
+    <span class="navbar-brand fw-bold text-primary">📚 Kütüphane Yönetim Paneli</span>
+    <div class="d-flex align-items-center gap-3">
+        <span id="userBadge" class="badge bg-light text-dark p-2 fs-6 border"></span>
+        <button onclick="handleLogout()" class="btn btn-outline-danger btn-sm fw-bold">🚪 Çıkış Yap</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card p-3 mb-4 d-none" id="logPanel">
+        <div class="d-flex justify-content-between align-items-center">
+            <div id="logMessage" class="m-0"></div>
+            <button type="button" class="btn-close" onclick="document.getElementById('logPanel').classList.add('d-none')"></button>
+        </div>
+    </div>
+
+    <div id="adminView" class="row d-none">
+        <div class="col-md-4">
+            <div class="card p-4 mb-4">
+                <h4 class="fw-bold text-success mb-3">🛠️ Yeni Kitap Ekle</h4>
+                <form id="bookForm">
+                    <div class="mb-3">
+                        <label class="form-label">Kitap Adı</label>
+                        <input type="text" id="title" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Yazar</label>
+                        <input type="text" id="author" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ISBN No</label>
+                        <input type="text" id="isbn" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stok Miktarı</label>
+                        <input type="number" id="stockQuantity" class="form-control" value="5">
+                    </div>
+                    <button type="button" onclick="saveBook()" class="btn btn-success w-100 fw-bold">Sisteme Kaydet</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold m-0 text-secondary">📋 Tüm Kitaplar (Yönetici Ekranı)</h4>
+                    <button onclick="loadBooks('admin')" class="btn btn-sm btn-outline-primary">🔄 Yenile</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr><th>ID</th><th>Kitap Adı</th><th>Yazar</th><th>ISBN</th><th>Stok</th></tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="memberView" class="row d-none">
+        <div class="col-12">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold m-0 text-dark">📖 Kütüphane Kataloğu</h3>
+                        <p class="text-muted m-0 small">Ödünç alabileceğiniz aktif kitap listesi</p>
+                    </div>
+                    <button onclick="loadBooks('member')" class="btn btn-primary">🔄 Kataloğu Yenile</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark">
+                        <tr><th>ID</th><th>Kitap Adı</th><th>Yazar</th><th>ISBN</th><th>Mevcut Durum</th></tr>
+                        </thead>
+                        <tbody id="memberTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL'i local yerine relative yaparak tarayıcı sınırlandırmalarını esnetiyoruz
+    const API_URL = "/api/books";
+
+    let currentAuthUser = "";
+    let currentAuthPass = "";
+    let currentUserRole = "";
+
+    function handleLogin() {
+        const user = document.getElementById("username").value.trim();
+        const pass = document.getElementById("password").value;
+        const errorDiv = document.getElementById("loginError");
+
+        errorDiv.classList.add("d-none");
+
+        if(!user || !pass) {
+            errorDiv.textContent = "Lütfen tüm alanları doldurun!";
+            errorDiv.classList.remove("d-none");
+            return;
+        }
+
+        const headers = new Headers();
+        headers.append("Authorization", "Basic " + btoa(user + ":" + pass));
+
+        fetch(API_URL, { method: "GET", headers: headers })
+        .then(response => {
+            if (response.ok) {
+                currentAuthUser = user;
+                currentAuthPass = pass;
+                currentUserRole = user.toLowerCase() === "admin" ? "ADMIN" : "MEMBER";
+
+                document.getElementById("loginView").classList.add("d-none");
+                document.getElementById("mainNavbar").classList.remove("d-none");
+                document.getElementById("userBadge").textContent = `👤 Giriş Yapan: ${user.toUpperCase()} (${currentUserRole})`;
+
+                if (currentUserRole === "ADMIN") {
+                    document.getElementById("adminView").classList.remove("d-none");
+                    loadBooks("admin");
+                } else {
+                    document.getElementById("memberView").classList.remove("d-none");
+                    loadBooks("member");
+                }
+            } else {
+                errorDiv.textContent = "Hatalı kullanıcı adı veya şifre!";
+                errorDiv.classList.remove("d-none");
+            }
+        })
+        .catch(err => {
+            errorDiv.textContent = "Backend bağlantı hatası!";
+            errorDiv.classList.remove("d-none");
+        });
+    }
+
+    function getAuthHeaders() {
+        const headers = new Headers();
+        headers.append("Authorization", "Basic " + btoa(currentAuthUser + ":" + currentAuthPass));
+        headers.append("Content-Type", "application/json");
+        return headers;
+    }
+
+    function loadBooks(viewType) {
+        fetch(API_URL, { method: "GET", headers: getAuthHeaders() })
+        .then(async response => {
+            if (response.ok) {
+                const books = await response.json();
+                let rows = "";
+
+                if(viewType === 'admin') {
+                    books.forEach(book => {
+                        rows += `<tr>
+                            <td>${book.id}</td>
+                            <td><strong>${book.title}</strong></td>
+                            <td>${book.author}</td>
+                            <td><code>${book.isbn}</code></td>
+                            <td><span class="badge ${book.stockQuantity > 0 ? 'bg-success' : 'bg-danger'}">${book.stockQuantity} Adet</span></td>
+                        </tr>`;
+                    });
+                    document.getElementById("adminTableBody").innerHTML = rows;
+                } else {
+                    books.forEach(book => {
+                        rows += `<tr>
+                            <td>${book.id}</td>
+                            <td><strong>${book.title}</strong></td>
+                            <td>${book.author}</td>
+                            <td><code>${book.isbn}</code></td>
+                            <td>${book.stockQuantity > 0 ? '<span class="text-success fw-bold">✓ Rafta Mevcut</span>' : '<span class="text-danger fw-bold">✕ Tükendi</span>'}</td>
+                        </tr>`;
+                    });
+                    document.getElementById("memberTableBody").innerHTML = rows;
+                }
+            } else {
+                handleError(response);
+            }
+        })
+        .catch(err => console.error(err));
+    }
+
+    function saveBook() {
+        const bookData = {
+            title: document.getElementById("title").value,
+            author: document.getElementById("author").value,
+            isbn: document.getElementById("isbn").value,
+            stockQuantity: parseInt(document.getElementById("stockQuantity").value)
+        };
+
+        fetch(API_URL, {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify(bookData)
+        })
+        .then(async response => {
+            if (response.status === 201) {
+                showLog("Kitap sisteme başarıyla eklendi!", "alert-success");
+                document.getElementById("bookForm").reset();
+                document.getElementById("stockQuantity").value = 5;
+                loadBooks("admin");
+            } else {
+                handleError(response);
+            }
+        })
+        .catch(err => showLog("Hata: " + err.message, "alert-danger"));
+    }
+
+    async function handleError(response) {
+        if (response.status === 403) {
+            showLog("<strong>403 Yetki Hatası:</strong> Bu işlemi yapmaya yetkiniz yok!", "alert-warning");
+            return;
+        }
+        const errorData = await response.json();
+        if (errorData.error === "Doğrulama Hatası") {
+            let msg = "<strong>Veri Doğrulama Başarısız:</strong><br><ul class='mb-0'>";
+            for (const [field, detail] of Object.entries(errorData.messages)) {
+                msg += `<li>${detail}</li>`;
+            }
+            msg += "</ul>";
+            showLog(msg, "alert-danger");
+        } else {
+            showLog(errorData.message || "Bir hata oluştu.", "alert-danger");
+        }
+    }
+
+    function showLog(message, alertClass) {
+        const panel = document.getElementById("logPanel");
+        const lMsg = document.getElementById("logMessage");
+        panel.classList.remove("d-none");
+        lMsg.innerHTML = message;
+        lMsg.parentElement.className = "d-flex justify-content-between align-items-center alert " + alertClass;
+    }
+
+    // ÇIKIŞ YAPMA FONKSİYONU (YAZIM HATASI DÜZELTİLDİ)
+    function handleLogout() {
+        currentAuthUser = "";
+        currentAuthPass = "";
+        currentUserRole = "";
+
+        document.getElementById("loginForm").reset();
+        document.getElementById("logPanel").classList.add("d-none");
+
+        document.getElementById("adminView").classList.add("d-none");
+        document.getElementById("memberView").classList.add("d-none");
+        document.getElementById("mainNavbar").classList.add("d-none");
+        document.getElementById("loginView").classList.remove("d-none");
+    }
+</script>
+</body>
+</html>
