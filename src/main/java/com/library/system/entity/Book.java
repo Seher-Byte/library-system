@@ -20,7 +20,7 @@ public class Book extends BaseEntity {
 
     public Book() {}
 
-    // Constructor
+
     public Book(String title, String author, String isbn, Integer stockQuantity) {
         this.title = title;
         this.author = author;
@@ -29,17 +29,32 @@ public class Book extends BaseEntity {
     }
 
     // Getters & Setters
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
+    public String getAuthor() {
+        return author;
+    }
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
-    public String getIsbn() { return isbn; }
-    public void setIsbn(String isbn) { this.isbn = isbn; }
+    public String getIsbn() {
+        return isbn;
+    }
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
 
-    public Integer getStockQuantity() { return stockQuantity; }
+    public Integer getStockQuantity() {
+        return stockQuantity;
+    }
     public void setStockQuantity(Integer stockQuantity) {
+
         if (stockQuantity < 0) throw new IllegalArgumentException("Stok negatif olamaz!");
         this.stockQuantity = stockQuantity;
     }

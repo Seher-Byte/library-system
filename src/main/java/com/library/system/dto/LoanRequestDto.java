@@ -18,7 +18,7 @@ public class LoanRequestDto {
         this.memberId = memberId;
     }
 
-    // --- Getters & Setters ---
+
     public Long getBookId() { return bookId; }
     public void setBookId(Long bookId) { this.bookId = bookId; }
 

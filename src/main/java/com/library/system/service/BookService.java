@@ -1,6 +1,6 @@
 package com.library.system.service;
-import com.library.system.exception.ResourceNotFoundException;
 
+import com.library.system.exception.ResourceNotFoundException;
 import com.library.system.entity.Book;
 import com.library.system.repository.BookRepository;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ public class BookService {
 
     @Transactional
     public Book saveBook(Book book) {
-
         if (bookRepository.findByIsbn(book.getIsbn()).isPresent()) {
             throw new IllegalArgumentException("Bu ISBN numarasına sahip bir kitap zaten mevcut!");
         }
@@ -39,11 +38,31 @@ public class BookService {
         return bookRepository.findByTitleContainingIgnoreCase(title);
     }
 
+
     @Transactional
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
-            throw new RuntimeException("Silinmek istenen kitap bulunamadı!");
+            throw new ResourceNotFoundException("Silinmek istenen kitap bulunamadı! ID: " + id);
         }
         bookRepository.deleteById(id);
+    }
+
+
+    @Transactional
+    public com.library.system.entity.Book updateBook(Long id, com.library.system.dto.BookRequestDto dto) {
+        com.library.system.entity.Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new com.library.system.exception.ResourceNotFoundException("Güncellenmek istenen kitap bulunamadı! ID: " + id));
+
+        existingBook.setTitle(dto.getTitle());
+        existingBook.setAuthor(dto.getAuthor());
+        existingBook.setIsbn(dto.getIsbn());
+        existingBook.setStockQuantity(dto.getStockQuantity());
+
+        return bookRepository.save(existingBook);
+    }
+
+    public Book findByIsbn(String isbn) {
+        return bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Bu ISBN numarasına sahip bir kitap bulunamadı: " + isbn));
     }
 }

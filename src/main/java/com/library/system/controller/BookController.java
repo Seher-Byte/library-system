@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
@@ -142,5 +143,18 @@ public class BookController {
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBook(@PathVariable Long id, @Valid @RequestBody com.library.system.dto.BookRequestDto dto) {
+
+        var updatedBook = bookService.updateBook(id, dto);
+        return ResponseEntity.ok(updatedBook); // HTTP 200 OK döner
+    }
+
+    @GetMapping("/isbn")
+    public ResponseEntity<Book> getBookByIsbn(@RequestParam String isbn) {
+        Book book = bookService.findByIsbn(isbn);
+        return ResponseEntity.ok(book);
     }
 }

@@ -28,7 +28,7 @@ public class Loan extends BaseEntity {
         this.loanDate = loanDate;
     }
 
-    // --- Getters & Setters ---
+
     public Book getBook() {
         return book;
     }
